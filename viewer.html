@@ -1,5 +1,6 @@
 <html>
 <head>
+    <title>Arquiz</title>
     <link rel="stylesheet" href="/static/css/index.css">
 </head>
 <body>
@@ -30,11 +31,15 @@
     $(function () {
         let username = prompt("Please enter your name");
         if (username == null) {
-            alert("Please enter a name!")
+            alert("Please enter a name")
             window.location.reload();
         }
         if (username.length > 16) {
-            alert("Name can't exceed 16 characters")
+            alert("Your name can't exceed 16 characters")
+            window.location.reload();
+        }
+        if (/[^a-zA-Z\d]/.test(username)) {
+            alert("Special characters aren't allowed! (A-Z and 0-9)")
             window.location.reload();
         }
 
@@ -117,14 +122,15 @@
             const self = currentConnections.filter(cc => cc.name === username)[0];
             const isModerator = (self != undefined && self.role == 'moderator');
             const isModerated = currentConnections.filter(entry => entry.role === "moderator").length >= 1
-
+console.log(isModerator)
             let playersHTML = `<tr>
         <th>Name</th>
         <th>Points</th>
         <th>Action</th>
+        <th>Guess</th>
     </tr>`
             playersHTML += currentConnections.map(user => `<tr id="${user.name}">
-        <td class="username">${user.name} ${user.role == "moderator" ? `<span class="badge badge__moderator">MODERATOR</span></td><td>/</td><td></td>` : `</td><td>${ isModerator ? `${user.points} <input type="number" class="points" originValue="${user.points}" value="${user.points}" name="${user.name}">` : `${user.points}` }</td> <td>${ !isModerator && user.name === username ? `<button id='buzzer' disabled=''>BUZZER</button>` : `` }${ isModerator ? `<div class="actions"></div>` : `` }</td>` }
+        <td class="username">${user.name} ${user.role == "moderator" ? `</td><td><span class="badge badge__moderator">MODERATOR</span></td><td></td><td>${ isModerator ? `<button id="lock__guessing" style="display:none">Lock</button><button id="unlock__guessing">Unlock</button>` : `` }</td>` : `</td><td>${ isModerator ? `${user.points} <input type="number" class="points" originValue="${user.points}" value="${user.points}" name="${user.name}">` : `${user.points}` }</td> <td>${ !isModerator && user.name === username ? `<button id='buzzer' disabled=''>Buzzer</button>` : `` }${ isModerator ? `<div class="actions"></div>` : `` }</td><td>${ user.name === username || isModerator ? `<input class="guess" type="text" disabled="" />` : `` }</td>` }
     </tr>`)
 
             $("#table").html(playersHTML)
@@ -149,46 +155,94 @@
                 }
             });
 
+            document.getElementsByClassName("guess")[0].addEventListener("change",update);
+            function update(e) {
+                socket.emit('updateGuess',{
+                    value: e.target.value,
+                    username: username
+                });
+            }
+
+            socket.on('updateGuess', function (data) {
+                console.log("loop=")
+                $(`#${data.username} .guess`).val(data.value)
+            })
+
+            socket.on('lockGuessing', function () {
+                $('.guess').each(function() {
+                    $(this).prop('disabled', true);
+                })
+            })
+
+            socket.on('unlockGuessing', function () {
+                if (isModerator) return;
+                $('.guess').each(function() {
+                    $(this).prop('disabled', false)
+                })
+            })
+
+            $(document).on('click touchstart', 'button#lock__guessing', function (event) {
+                event.stopImmediatePropagation();
+                console.log("LOCKED GUESSING")
+                $("#lock__guessing").hide()
+                $("#unlock__guessing").show()
+                socket.emit('lockGuessing')
+            })
+
+            $(document).on('click touchstart', 'button#unlock__guessing', function (event) {
+                event.stopImmediatePropagation();
+                console.log("UNLOCKED GUESSING")
+                $("#unlock__guessing").hide()
+                $("#lock__guessing").show()
+                socket.emit('unlockGuessing')
+            })
+
             let buzzerer = null;
             socket.on('buzzered', function (user, users) {
                 buzzerSound.play();
                 buzzerer = user.name;
+                localStorage.setItem("buzzerer", user.name)
                 setActiveBuzzer(user.name, users)
+            })
 
-                $(document).on('click touchstart', 'button#wrong', function (event) {
-                    event.stopImmediatePropagation();
-                    socket.emit('wrong', buzzerer, {for: "everyone"})
-                })
+            $(document).on('click touchstart', 'button#wrong', function (event) {
+                event.stopImmediatePropagation();
+                if (buzzerer === null) buzzerer = localStorage.getItem("buzzerer")
+                socket.emit('wrong', buzzerer, {for: "everyone"})
+            })
 
-                $(document).on('click touchstart', 'button#correct', function (event) {
-                    event.stopImmediatePropagation();
-                    socket.emit('correct', buzzerer, {for: "everyone"})
-                })
+            $(document).on('click touchstart', 'button#correct', function (event) {
+                event.stopImmediatePropagation();
+                if (buzzerer === null) buzzerer = localStorage.getItem("buzzerer")
+                socket.emit('correct', buzzerer, {for: "everyone"})
+            })
 
-                $(document).on('click touchstart', 'button#nopoints', function (event) {
-                    event.stopImmediatePropagation();
-                    socket.emit('nopoints', buzzerer, {for: "everyone"})
-                })
-
+            $(document).on('click touchstart', 'button#nopoints', function (event) {
+                event.stopImmediatePropagation();
+                if (buzzerer === null) buzzerer = localStorage.getItem("buzzerer")
+                socket.emit('nopoints', buzzerer, {for: "everyone"})
             })
         }
 
         function setActiveBuzzer(buzzered__name, users) {
-            $(`#${buzzered__name} > td:last-child`).css("background", "red")
-            $(`#${buzzered__name} > td:last-child`).css("border-color", "red")
+            console.log("SET ACTIVE BUZZER")
+            $(`#${buzzered__name} > td:first-child`).css("color", "red")
+            $(`#${buzzered__name} > td:first-child`).css("font-weight", "600")
             $(`#buzzer`).prop("disabled", true);
 
             const self = users.filter(user => user.name === username)[0];
             const isModerator = (self != undefined && self.role == 'moderator');
 
             if (isModerator) {
+                console.log("YES DO IT!")
+                console.log(buzzered__name)
                 $(`#${buzzered__name} .actions`).html(`<div id="ctr__buttons"><button id="correct">Correct</button><button id="wrong">Wrong</button><button id="nopoints">No Points</button></div>`)
             }
         }
 
         function unlock(usersNew, username) {
-            $(`#${username}`).css("background", "")
-            $(`#${username}`).css("border-color", "")
+            $(`#${username}`).css("color", "")
+            $(`#${username}`).css("font-weight", "")
             $(`#buzzer`).prop("disabled", false);
             $("#ctr__buttons").remove()
             updatePlayerList(usersNew)

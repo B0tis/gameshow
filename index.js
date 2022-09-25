@@ -3,11 +3,15 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-const secure = false;
-const url = `127.0.0.1`
-const port = 3000;
-
-let moderatorSecret = makeid(5);
+var config = {
+    secure: false,
+    url: '127.0.0.1',
+    port: 3000,
+    correct: 4, // amount of points player receives for a correct answer
+    wrong: 1,
+    wrongAnswerPointsEveryone: true, // enabled = on wrong answer, everyone else receives "wrong" amount of points - otherwise "wrong" amount of points substract,
+    moderatorSecret: makeid(5)
+}
 
 var currentConnections = {};
 var buzzered = {
@@ -15,8 +19,10 @@ var buzzered = {
     name: null
 }
 
-http.listen(port, function () {
-    console.log(`///\nArcuiz started on ${url}:${port}\nJoin as moderator: ${secure ? "https://" : "http://" }${url}:${port}?secret=${moderatorSecret}\nJoin as player: ${secure ? "https://" : "http://" }${url}:${port}\n///`)
+var guess = false; // if guessing field is locked / unlocked ?
+
+http.listen(config.port, function () {
+    console.log(`///\nArcuiz started on ${config.url}:${config.port}\nJoin as moderator: ${config.secure ? "https://" : "http://" }${config.url}:${config.port}?secret=${config.moderatorSecret}\nJoin as player: ${config.secure ? "https://" : "http://" }${config.url}:${config.port}\n///`)
 });
 
 app.use('/static', express.static(__dirname + '/public'));
@@ -45,8 +51,8 @@ io.on('connection', function (socket, name) {
             buzzered.active = false;
             buzzered.name = null;
             console.log("\n\nNo players // resetting game!")
-            moderatorSecret = makeid(5);
-            console.log("Moderator Secret: http://127.0.0.1:3000?secret="+moderatorSecret)
+            config.moderatorSecret = makeid(5);
+            console.log("Moderator Secret: http://127.0.0.1:3000?secret="+config.moderatorSecret)
             currentConnections = {};
             return;
         }
@@ -72,10 +78,10 @@ io.on('connection', function (socket, name) {
 
     socket.on('playerJoin', function (username, secret) {
         let role = "player";
-        if (secret && secret === moderatorSecret) {
+        if (secret && secret === config.moderatorSecret) {
             // Delete Token after redemption
-            /*moderatorSecret = makeid(5);
-            console.log("Moderator Secret Redeemed! New one: http://127.0.0.1:3000?secret="+moderatorSecret)*/
+            config.moderatorSecret = makeid(20); // ungessable token!
+            console.log("Moderator Secret Redeemed!")
             role = "moderator";
         }
         // if (getUsers(true).length == 0) role = "moderator";
@@ -131,11 +137,18 @@ io.on('connection', function (socket, name) {
         buzzered.active = false;
         buzzered.name = null;
 
-        let users = getUsers();
-        users = users.filter(entry => entry.name !== buzzered__name && entry.role !== "moderator")
+        if (config.wrongAnswerPointsEveryone) {
+            let users = getUsers();
+            users = users.filter(entry => entry.name !== buzzered__name && entry.role !== "moderator")
 
-        for (const user of users)
-            user.points += 1;
+            for (const user of users)
+                user.points += config.wrong;
+        } else {
+            const user = getUserByUsername(buzzered__name)
+            if (user === undefined) return;
+            if (user)
+                user.points -= config.wrong;
+        }
 
         io.emit('wrongAnswered', getUsers(false ,true), buzzered__name)
     })
@@ -147,7 +160,7 @@ io.on('connection', function (socket, name) {
         const user = getUserByUsername(buzzered__name)
         if (user === undefined) return;
         if (user)
-            user.points += 3;
+            user.points += config.correct;
 
         io.emit('correctAnswered', getUsers(false, true), buzzered__name)
     })
@@ -165,6 +178,24 @@ io.on('connection', function (socket, name) {
         user.points = points;
         io.emit('nopointsAnswered', getUsers(false, true), username)
     })
+
+    socket.on('lockGuessing', function() {
+        guess = false;
+        io.emit('lockGuessing')
+    });
+
+    socket.on('unlockGuessing', function() {
+        guess = true;
+        io.emit('unlockGuessing')
+    });
+
+    socket.on('updateGuess', function(data) {
+        if (guess === false) return;
+        io.emit('updateGuess', {
+            value: data.value,
+            username: data.username
+        })
+    });
 
     function getUsers(disconnected, sorted) {
         let users = Object.values(currentConnections).map(entry => entry.data);
