@@ -28,6 +28,16 @@
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
     $(function () {
+        var socket = null;
+
+        try {
+            socket = io();
+        } catch (e) {
+            console.log("SOCKET OFFLINE")
+            $("body").html("Closed")
+            return;
+        }
+
         let username = prompt("Please enter your name");
         if (username == null) {
             alert("Please enter a name!")
@@ -54,7 +64,6 @@
             buzzerSound.play();
         }
 
-        const socket = io();
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         const secret = urlParams.get('secret')
