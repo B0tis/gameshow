@@ -60,9 +60,9 @@
         const urlParams = new URLSearchParams(queryString);
         const secret = urlParams.get('secret')
 
-        $(window).bind('beforeunload',function(){
-           socket.emit('forceDisconnect')
-        });
+        window.onbeforeunload = function(event) {
+            return socket.emit('forceDisconnect')
+        };
 
         socket.emit('playerJoin', username, secret);
 
