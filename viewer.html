@@ -155,13 +155,12 @@ console.log(isModerator)
                 }
             });
 
-            document.getElementsByClassName("guess")[0].addEventListener("change",update);
-            function update(e) {
+            $('.guess').first().on('input', function() {
                 socket.emit('updateGuess',{
-                    value: e.target.value,
+                    value: $(this).val(),
                     username: username
                 });
-            }
+            })
 
             socket.on('updateGuess', function (data) {
                 console.log("loop=")
