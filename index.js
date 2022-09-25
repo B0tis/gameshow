@@ -32,6 +32,10 @@ io.on('connection', function (socket, name) {
 
     io.emit('playerConnect', { for: 'everyone' });
 
+    socket.on('forceDisconnect', function() {
+        socket.disconnect()
+    })
+
     socket.on('disconnect', function () {
         if (currentConnections[socket.id] === undefined) return;
         currentConnections[socket.id].data.connected = false

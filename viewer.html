@@ -60,6 +60,10 @@
         const urlParams = new URLSearchParams(queryString);
         const secret = urlParams.get('secret')
 
+        $(window).bind('beforeunload',function(){
+           socket.emit('forceDisconnect')
+        });
+
         socket.emit('playerJoin', username, secret);
 
         socket.on('playerConnect', function () {
