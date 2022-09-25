@@ -22,7 +22,7 @@ var buzzered = {
 var guess = false; // if guessing field is locked / unlocked ?
 
 http.listen(config.port, function () {
-    console.log(`///\nArcuiz started on ${config.url}:${config.port}\nJoin as moderator: ${config.secure ? "https://" : "http://" }${config.url}:${config.port}?secret=${config.moderatorSecret}\nJoin as player: ${config.secure ? "https://" : "http://" }${config.url}:${config.port}\n///`)
+    console.log(`///\nRaved's Gameshow started on ${config.url}:${config.port}\nJoin as moderator: ${config.secure ? "https://" : "http://" }${config.url}:${config.port}?secret=${config.moderatorSecret}\nJoin as player: ${config.secure ? "https://" : "http://" }${config.url}:${config.port}\n///`)
 });
 
 app.use('/static', express.static(__dirname + '/public'));
