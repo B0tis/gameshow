@@ -22,7 +22,7 @@ http.listen(port, function () {
 app.use('/static', express.static(__dirname + '/public'));
 
 app.get('/', function (req, res) {
-    res.sendFile(__dirname+'/index.html')
+    res.sendFile(__dirname+'/viewer.html')
 });
 
 
