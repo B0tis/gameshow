@@ -1,0 +1,132 @@
+html, body {
+    margin: 0;
+}
+
+:root {
+    --tableBorderColor: #dddddd;
+    --tableHeadingBorderColor: #099a65;
+    --tableHeadingBackgroundColor: #c63227;
+    --tableAverageBackgroundColor: #ecffe7;
+    --tableBackgroundColorPrimary: #ffffff;
+    --tableBackgroundColorSecondary: #f2f2f2;
+}
+
+.page__wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.message__wrapper,
+.table__wrapper {
+    text-align: center;
+    width: 100%;
+}
+
+.table__wrapper {
+    display: flex;
+    justify-content: center;
+    max-width: 95ch;
+    min-width: 75ch;
+    padding-left: .5rem;
+    padding-right: .5rem;
+    padding-top: .5rem;
+}
+
+table {
+    font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table tr:nth-child(even) {
+    background-color: var(--tableBackgroundColorSecondary);
+}
+
+table th {
+    background-color: var(--tableHeadingBackgroundColor);
+    color: white;
+    white-space: nowrap;
+    padding: 12px 24px;
+    text-align: center;
+}
+
+table th:first-child {
+    border-top-left-radius: 8px;
+}
+
+table th:last-child {
+    border-top-right-radius: 8px;
+}
+
+table td {
+    border: 1px solid var(--tableBorderColor);
+    padding: 8px;
+    text-align: center;
+}
+
+table td.average {
+    background-color: var(--tableAverageBackgroundColor) !important;
+}
+
+table td:first-child {
+    white-space: nowrap;
+    padding: 12px 24px;
+    background: var(--tableBackgroundColorPrimary);
+}
+
+table td.sticky {
+    box-shadow: inset -1px 0px 0px 0px var(--tableBorderColor);
+}
+
+table th.sticky {
+    box-shadow: inset -1px 0px 0px 0px var(--tableHeadingBorderColor);
+}
+
+/*#table td:first-of-type*/
+.sticky {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: inherit;
+}
+
+.fixed {
+    position: fixed;
+    left: 0;
+    margin-left: 20px;
+    font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+}
+
+td.username {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.badge {
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: .2rem;
+    margin-left: .5rem;
+    border-radius: 3px;
+}
+
+.badge.badge__moderator {
+    color: #ffffff;
+    background-color: dodgerblue;
+}
+
+.footer__wrapper {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.slidecontainer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}

@@ -1,0 +1,196 @@
+<html>
+<head>
+    <link rel="stylesheet" href="/static/css/index.css">
+</head>
+<body>
+<div class="page__wrapper">
+    <div class="message__wrapper">
+<p id="wfm">Waiting for Moderator..</p>
+    </div>
+
+<div class="table__wrapper">
+<table id="table">
+
+</table>
+</div>
+
+    <div class="footer__wrapper">
+        <div class="slidecontainer">
+            <span>Volume:</span>
+            <input type="range" min="1" max="100" value="30" class="slider" id="slider">
+        </div>
+    </div>
+</div>
+
+</body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+    $(function () {
+        let username = prompt("Please enter your name");
+        if (username == null) {
+            alert("Please enter a name!")
+            window.location.reload();
+        }
+
+        var wrongSound = new Audio("/static/sounds/wrong.mp3");
+        var correctSound = new Audio("/static/sounds/correct.mp3");
+        var buzzerSound = new Audio("/static/sounds/buzzer.mp3");
+
+        const slider = document.getElementById("slider")
+
+        var storageVolume = localStorage.getItem("volume")
+        if (storageVolume == null) localStorage.setItem("volume", 30)
+        slider.value = localStorage.getItem("volume")
+
+        slider.oninput = () => {
+            localStorage.setItem("volume", slider.value)
+
+            wrongSound.volume = ~~(slider.value) * 0.01;
+            correctSound.volume = ~~(slider.value) * 0.01;
+            buzzerSound.volume = ~~(slider.value) * 0.01;
+
+            buzzerSound.play();
+        }
+
+        const socket = io();
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const secret = urlParams.get('secret')
+
+        socket.emit('playerJoin', username, secret);
+
+        socket.on('playerConnect', function () {
+            // Immer ausgeführt, wenn ein Spieler beitritt
+            // Sowohl bei dem beitretenden, als auch allen anderen!
+        })
+
+        socket.on('playerDisconnect', function (users) {
+            updatePlayerList(users)
+        })
+
+        socket.on('error', function (message) {
+            alert(message);
+            window.location.reload();
+        })
+
+        socket.on('playerJoin', function (currentConnections) {
+            updatePlayerList(currentConnections);
+        })
+
+        socket.on('setActiveBuzzer', function (username, users) {
+            setActiveBuzzer(username, users)
+        })
+
+        socket.on('wrongAnswered', function (usersNew, username) {
+            wrongSound.play();
+            unlock(usersNew, username)
+        })
+
+        socket.on('correctAnswered', function (usersNew, username) {
+            correctSound.play();
+            unlock(usersNew, username)
+        })
+
+        socket.on('nopointsAnswered', function (usersNew, username) {
+            unlock(usersNew, username)
+        })
+
+        $(document).on('click touchstart', 'button#buzzer', function (event) {
+            event.stopImmediatePropagation();
+            socket.emit('buzzered', username)
+        })
+
+        function updatePlayerList(currentConnections) {
+            $("#players").text("N/A");
+
+            const self = currentConnections.filter(cc => cc.name === username)[0];
+            const isModerator = (self != undefined && self.role == 'moderator');
+            const isModerated = currentConnections.filter(entry => entry.role === "moderator").length >= 1
+
+            let playersHTML = `<tr>
+        <th>Name</th>
+        <th>Points</th>
+        <th>Action</th>
+    </tr>`
+            playersHTML += currentConnections.map(user => `<tr id="${user.name}">
+        <td class="username">${user.name} ${user.role == "moderator" ? `<span class="badge badge__moderator">MODERATOR</span></td><td>/</td><td></td>` : `</td><td>${ isModerator ? `${user.points} <input type="number" class="points" originValue="${user.points}" value="${user.points}" name="${user.name}">` : `${user.points}` }</td> <td>${ !isModerator && user.name === username ? `<button id='buzzer' disabled=''>BUZZER</button>` : `` }${ isModerator ? `<div class="actions"></div>` : `` }</td>` }
+    </tr>`)
+
+            $("#table").html(playersHTML)
+
+            if (isModerated) {
+                $("#wfm").hide();
+                $(`#buzzer`).prop("disabled", false);
+            } else {
+                $("#wfm").show();
+                $(`#buzzer`).prop("disabled", true);
+            }
+
+            $('td>.points').bind("enterKey",function(e){
+                if ($(this).val() == "") return;
+                if ($(this).val() === $(this).attr("originValue")) return;
+                socket.emit('updatepoints', $(this).attr("name"), $(this).val(), {for: "everyone"})
+            });
+            $('td>.points').keyup(function(e){
+                if(e.keyCode == 13)
+                {
+                    $(this).trigger("enterKey");
+                }
+            });
+
+            let buzzerer = null;
+            socket.on('buzzered', function (user, users) {
+                buzzerSound.play();
+                buzzerer = user.name;
+                setActiveBuzzer(user.name, users)
+
+                $(document).on('click touchstart', 'button#wrong', function (event) {
+                    event.stopImmediatePropagation();
+                    socket.emit('wrong', buzzerer, {for: "everyone"})
+                })
+
+                $(document).on('click touchstart', 'button#correct', function (event) {
+                    event.stopImmediatePropagation();
+                    socket.emit('correct', buzzerer, {for: "everyone"})
+                })
+
+                $(document).on('click touchstart', 'button#nopoints', function (event) {
+                    event.stopImmediatePropagation();
+                    socket.emit('nopoints', buzzerer, {for: "everyone"})
+                })
+
+            })
+        }
+
+        function setActiveBuzzer(buzzered__name, users) {
+            $(`#${buzzered__name} > td:last-child`).css("background", "red")
+            $(`#${buzzered__name} > td:last-child`).css("border-color", "red")
+            $(`#buzzer`).prop("disabled", true);
+
+            const self = users.filter(user => user.name === username)[0];
+            const isModerator = (self != undefined && self.role == 'moderator');
+
+            if (isModerator) {
+                $(`#${buzzered__name} .actions`).html(`<div id="ctr__buttons"><button id="correct">Correct</button><button id="wrong">Wrong</button><button id="nopoints">No Points</button></div>`)
+            }
+        }
+
+        function unlock(usersNew, username) {
+            $(`#${username}`).css("background", "")
+            $(`#${username}`).css("border-color", "")
+            $(`#buzzer`).prop("disabled", false);
+            $("#ctr__buttons").remove()
+            updatePlayerList(usersNew)
+        }
+    });
+</script>
+
+</html>
+
+<!--
+TODO:
+Design:
+add volume slider for sounds
+-->
