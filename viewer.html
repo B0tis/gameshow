@@ -33,6 +33,10 @@
             alert("Please enter a name!")
             window.location.reload();
         }
+        if (username.length > 16) {
+            alert("Name can't exceed 16 characters")
+            window.location.reload();
+        }
 
         var wrongSound = new Audio("/static/sounds/wrong.mp3");
         var correctSound = new Audio("/static/sounds/correct.mp3");

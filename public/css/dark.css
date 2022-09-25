@@ -1,13 +1,14 @@
 html, body {
     margin: 0;
+    background-color: #030305;
 }
 
 :root {
-    --tableBorderColor: #dddddd;
+    --tableBorderColor: #030305;
     --tableHeadingBorderColor: #099a65;
-    --tableHeadingBackgroundColor: #c63227;
+    --tableHeadingBackgroundColor: #0A0A0A;
     --tableAverageBackgroundColor: #ecffe7;
-    --tableBackgroundColorPrimary: #ffffff;
+    --tableBackgroundColorPrimary: #0B0B0B;
     --tableBackgroundColorSecondary: #f2f2f2;
 }
 
@@ -60,15 +61,13 @@ table th:last-child {
 }
 
 table td {
-    border: 1px solid var(--tableBorderColor);
-    padding: 8px;
-    text-align: center;
-}
-
-table td:first-child {
     white-space: nowrap;
     padding: 12px 24px;
     background: var(--tableBackgroundColorPrimary);
+    color: #fff;
+    border: 4px solid var(--tableBorderColor);
+    padding: 8px;
+    text-align: center;
 }
 
 .badge {
@@ -78,6 +77,18 @@ table td:first-child {
     padding: .2rem;
     margin-left: .5rem;
     border-radius: 3px;
+}
+
+button {
+    background-color: #282E46;
+    border-color: #282E46;
+    color: #fff;
+    border-radius: 32px;
+    padding: .3rem .8rem;
+}
+
+button[disabled] {
+    opacity: .5;
 }
 
 .badge.badge__moderator {
@@ -95,4 +106,5 @@ table td:first-child {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    color: #fff;
 }
