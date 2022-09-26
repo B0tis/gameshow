@@ -50,17 +50,28 @@
         const slider = document.getElementById("slider")
 
         var storageVolume = localStorage.getItem("volume")
-        if (storageVolume == null) localStorage.setItem("volume", 30)
+        console.log(storageVolume)
+        if (storageVolume === null) {
+            localStorage.setItem("volume", 30)
+            console.log("No volume stored -- setting 30")
+        }
         slider.value = localStorage.getItem("volume")
+        console.log(slider)
 
         slider.oninput = () => {
+            console.log("-----")
+            console.log("CHANGE!")
             localStorage.setItem("volume", slider.value)
+            console.log(localStorage.getItem("volume"))
 
             wrongSound.volume = ~~(slider.value) * 0.01;
             correctSound.volume = ~~(slider.value) * 0.01;
             buzzerSound.volume = ~~(slider.value) * 0.01;
 
+            console.log(buzzerSound)
+
             buzzerSound.play();
+            console.log("-----")
         }
 
         const socket = io();
@@ -122,7 +133,7 @@
             const self = currentConnections.filter(cc => cc.name === username)[0];
             const isModerator = (self != undefined && self.role == 'moderator');
             const isModerated = currentConnections.filter(entry => entry.role === "moderator").length >= 1
-console.log(isModerator)
+
             let playersHTML = `<tr>
         <th>Name</th>
         <th>Points</th>
@@ -163,7 +174,6 @@ console.log(isModerator)
             })
 
             socket.on('updateGuess', function (data) {
-                console.log("loop=")
                 $(`#${data.username} .guess`).val(data.value)
             })
 
@@ -182,7 +192,6 @@ console.log(isModerator)
 
             $(document).on('click touchstart', 'button#lock__guessing', function (event) {
                 event.stopImmediatePropagation();
-                console.log("LOCKED GUESSING")
                 $("#lock__guessing").hide()
                 $("#unlock__guessing").show()
                 socket.emit('lockGuessing')
@@ -190,7 +199,6 @@ console.log(isModerator)
 
             $(document).on('click touchstart', 'button#unlock__guessing', function (event) {
                 event.stopImmediatePropagation();
-                console.log("UNLOCKED GUESSING")
                 $("#unlock__guessing").hide()
                 $("#lock__guessing").show()
                 socket.emit('unlockGuessing')
@@ -199,6 +207,7 @@ console.log(isModerator)
             let buzzerer = null;
             socket.on('buzzered', function (user, users) {
                 buzzerSound.play();
+                console.log(buzzerSound)
                 buzzerer = user.name;
                 localStorage.setItem("buzzerer", user.name)
                 setActiveBuzzer(user.name, users)
@@ -224,7 +233,6 @@ console.log(isModerator)
         }
 
         function setActiveBuzzer(buzzered__name, users) {
-            console.log("SET ACTIVE BUZZER")
             $(`#${buzzered__name} > td:first-child`).css("color", "#e03030")
             $(`#${buzzered__name} > td:first-child`).css("font-weight", "600")
             $(`#buzzer`).prop("disabled", true);
@@ -233,8 +241,6 @@ console.log(isModerator)
             const isModerator = (self != undefined && self.role == 'moderator');
 
             if (isModerator) {
-                console.log("YES DO IT!")
-                console.log(buzzered__name)
                 $(`#${buzzered__name} .actions`).html(`<div id="ctr__buttons"><button id="correct">Correct</button><button id="wrong">Wrong</button><button id="nopoints">No Points</button></div>`)
             }
         }
