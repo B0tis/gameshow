@@ -130,7 +130,7 @@ console.log(isModerator)
         <th>Guess</th>
     </tr>`
             playersHTML += currentConnections.map(user => `<tr id="${user.name}">
-        <td class="username">${user.name} ${user.role == "moderator" ? `</td><td><span class="badge badge__moderator">MODERATOR</span></td><td></td><td>${ isModerator ? `<button id="lock__guessing" style="display:none">Lock</button><button id="unlock__guessing">Unlock</button>` : `` }</td>` : `</td><td>${ isModerator ? `${user.points} <input type="number" class="points" originValue="${user.points}" value="${user.points}" name="${user.name}">` : `${user.points}` }</td> <td>${ !isModerator && user.name === username ? `<button id='buzzer' disabled=''>Buzzer</button>` : `` }${ isModerator ? `<div class="actions"></div>` : `` }</td><td>${ user.name === username || isModerator ? `<input class="guess" type="text" disabled="" />` : `` }</td>` }
+        <td class="username">${user.name} ${user.role == "moderator" ? `</td><td><span class="badge badge__moderator">MODERATOR</span></td><td></td><td>${ isModerator ? `<button id="lock__guessing" style="display:none">Lock</button><button id="unlock__guessing">Unlock</button>` : `` }</td>` : `</td><td>${ isModerator ? `${user.points} <input type="number" class="points" originValue="${user.points}" value="${user.points}" name="${user.name}">` : `${user.points}` }</td> <td>${ !isModerator && user.name === username ? `<button id='buzzer' disabled=''>Buzzer</button>` : `` }${ isModerator ? `<div class="actions"></div>` : `` }</td><td>${ user.name === username || isModerator ? `<input class="guess" type="text" value="${user.guess}" disabled="" />` : `` }</td>` }
     </tr>`)
 
             $("#table").html(playersHTML)

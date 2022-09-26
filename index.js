@@ -31,6 +31,10 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname+'/viewer.html')
 });
 
+app.get('/api', function (req, res) {
+    res.json(getUsers())
+})
+
 
 io.on('connection', function (socket, name) {
     currentConnections[socket.id] = {socket: socket};
@@ -113,6 +117,7 @@ io.on('connection', function (socket, name) {
                 name: username,
                 role: role,
                 points: 0,
+                guess: "",
                 connected: true
             }
         }
@@ -191,29 +196,34 @@ io.on('connection', function (socket, name) {
 
     socket.on('updateGuess', function(data) {
         if (guess === false) return;
+
+        const user = getUserByUsername(data.username)
+        if (user === undefined) return;
+
+        user.guess = data.value;
         io.emit('updateGuess', {
             value: data.value,
             username: data.username
         })
     });
 
-    function getUsers(disconnected, sorted) {
-        let users = Object.values(currentConnections).map(entry => entry.data);
-        users = users.filter(value => Object.keys(value).length !== 0);
-        if (!disconnected) users = users.filter(entry => entry.connected) // only return connected clients!
-        if (sorted) {
-            const usersWithoutModerators = users.filter(entry => entry.role !== "moderator");
-            const usersOnlyModerators = users.filter(entry => entry.role === "moderator");
-            users = (usersOnlyModerators.sort( function( a, b ) { return a.name < b.name ? -1 : a.name > b.name ? 1 : 0 })).concat((usersWithoutModerators.sort( function( a, b ) { return a.name < b.name ? -1 : a.name > b.name ? 1 : 0 })));
-        }
-        return users
-    }
-
-    function getUserByUsername(username) {
+       function getUserByUsername(username) {
         const users = getUsers(true);
         return users.filter(user => user.name === username)[0]
     }
 });
+
+function getUsers(disconnected, sorted) {
+    let users = Object.values(currentConnections).map(entry => entry.data);
+    users = users.filter(value => Object.keys(value).length !== 0);
+    if (!disconnected) users = users.filter(entry => entry.connected) // only return connected clients!
+    if (sorted) {
+        const usersWithoutModerators = users.filter(entry => entry.role !== "moderator");
+        const usersOnlyModerators = users.filter(entry => entry.role === "moderator");
+        users = (usersOnlyModerators.sort( function( a, b ) { return a.name < b.name ? -1 : a.name > b.name ? 1 : 0 })).concat((usersWithoutModerators.sort( function( a, b ) { return a.name < b.name ? -1 : a.name > b.name ? 1 : 0 })));
+    }
+    return users
+}
 
 function makeid(length) {
     var result           = '';
