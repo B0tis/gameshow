@@ -53,6 +53,10 @@
         if (storageVolume === null) localStorage.setItem("volume", 30)
         slider.value = localStorage.getItem("volume")
 
+        wrongSound.volume = ~~(slider.value) * 0.01;
+        correctSound.volume = ~~(slider.value) * 0.01;
+        buzzerSound.volume = ~~(slider.value) * 0.01;
+
         slider.oninput = () => {
             localStorage.setItem("volume", slider.value)
 
