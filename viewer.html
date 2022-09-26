@@ -47,6 +47,10 @@
         var correctSound = new Audio("/static/sounds/correct.mp3");
         var buzzerSound = new Audio("/static/sounds/buzzer.mp3");
 
+        wrongSound.load()
+        correctSound.load()
+        buzzerSound.load()
+
         const slider = document.getElementById("slider")
 
         var storageVolume = localStorage.getItem("volume")
