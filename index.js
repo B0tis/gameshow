@@ -184,7 +184,7 @@ io.on('connection', function (socket, name) {
         if (user === undefined) return;
 
         user.points = points;
-        io.emit('nopointsAnswered', getUsers(false, true), username)
+        io.emit('nopointsAnswered', getUsers(false, true), username, gameConfig)
     })
 
     socket.on('lockGuessing', function() {

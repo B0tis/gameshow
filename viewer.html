@@ -118,6 +118,12 @@
 
         function updatePlayerList(currentConnections, gameConfig) {
             $("#players").text("N/A");
+            if (!gameConfig) {
+                alert("ERROR_MISSING_GAMECONFIG__SETTING_DEFAULT_VALUES")
+                gameConfig = {
+                    guess: false
+                }
+            }
 
             const self = currentConnections.filter(cc => cc.name === username)[0];
             const isModerator = (self != undefined && self.role == 'moderator');
@@ -146,6 +152,7 @@
             $('td>.points').bind("enterKey",function(e){
                 if ($(this).val() == "") return;
                 if ($(this).val() === $(this).attr("originValue")) return;
+                console.log("EMITTED")
                 socket.emit('updatepoints', $(this).attr("name"), $(this).val(), {for: "everyone"})
             });
             $('td>.points').keyup(function(e){
