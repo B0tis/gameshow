@@ -50,28 +50,17 @@
         const slider = document.getElementById("slider")
 
         var storageVolume = localStorage.getItem("volume")
-        console.log(storageVolume)
-        if (storageVolume === null) {
-            localStorage.setItem("volume", 30)
-            console.log("No volume stored -- setting 30")
-        }
+        if (storageVolume === null) localStorage.setItem("volume", 30)
         slider.value = localStorage.getItem("volume")
-        console.log(slider)
 
         slider.oninput = () => {
-            console.log("-----")
-            console.log("CHANGE!")
             localStorage.setItem("volume", slider.value)
-            console.log(localStorage.getItem("volume"))
 
             wrongSound.volume = ~~(slider.value) * 0.01;
             correctSound.volume = ~~(slider.value) * 0.01;
             buzzerSound.volume = ~~(slider.value) * 0.01;
 
-            console.log(buzzerSound)
-
-            buzzerSound.play();
-            console.log("-----")
+            buzzerSound.play().catch(e => {});
         }
 
         const socket = io();
@@ -91,8 +80,8 @@
             // Sowohl bei dem beitretenden, als auch allen anderen!
         })
 
-        socket.on('playerDisconnect', function (users) {
-            updatePlayerList(users)
+        socket.on('playerDisconnect', function (users, gameConfig) {
+            updatePlayerList(users, gameConfig)
         })
 
         socket.on('error', function (message) {
@@ -100,26 +89,26 @@
             window.location.reload();
         })
 
-        socket.on('playerJoin', function (currentConnections) {
-            updatePlayerList(currentConnections);
+        socket.on('playerJoin', function (currentConnections, gameConfig) {
+            updatePlayerList(currentConnections, gameConfig);
         })
 
         socket.on('setActiveBuzzer', function (username, users) {
             setActiveBuzzer(username, users)
         })
 
-        socket.on('wrongAnswered', function (usersNew, username) {
-            wrongSound.play();
-            unlock(usersNew, username)
+        socket.on('wrongAnswered', function (usersNew, username, gameConfig) {
+            wrongSound.play().catch(e => {});
+            unlock(usersNew, username, gameConfig)
         })
 
-        socket.on('correctAnswered', function (usersNew, username) {
-            correctSound.play();
-            unlock(usersNew, username)
+        socket.on('correctAnswered', function (usersNew, username, gameConfig) {
+            correctSound.play().catch(e => {});
+            unlock(usersNew, username, gameConfig)
         })
 
-        socket.on('nopointsAnswered', function (usersNew, username) {
-            unlock(usersNew, username)
+        socket.on('nopointsAnswered', function (usersNew, username, gameConfig) {
+            unlock(usersNew, username, gameConfig)
         })
 
         $(document).on('click touchstart', 'button#buzzer', function (event) {
@@ -127,7 +116,7 @@
             socket.emit('buzzered', username)
         })
 
-        function updatePlayerList(currentConnections) {
+        function updatePlayerList(currentConnections, gameConfig) {
             $("#players").text("N/A");
 
             const self = currentConnections.filter(cc => cc.name === username)[0];
@@ -141,7 +130,7 @@
         <th>Guess</th>
     </tr>`
             playersHTML += currentConnections.map(user => `<tr id="${user.name}">
-        <td class="username">${user.name} ${user.role == "moderator" ? `</td><td><span class="badge badge__moderator">MODERATOR</span></td><td></td><td>${ isModerator ? `<button id="lock__guessing" style="display:none">Lock</button><button id="unlock__guessing">Unlock</button>` : `` }</td>` : `</td><td>${ isModerator ? `${user.points} <input type="number" class="points" originValue="${user.points}" value="${user.points}" name="${user.name}">` : `${user.points}` }</td> <td>${ !isModerator && user.name === username ? `<button id='buzzer' disabled=''>Buzzer</button>` : `` }${ isModerator ? `<div class="actions"></div>` : `` }</td><td>${ user.name === username || isModerator ? `<input class="guess" type="text" value="${user.guess}" disabled="" />` : `` }</td>` }
+        <td class="username">${user.name} ${user.role == "moderator" ? `</td><td><span class="badge badge__moderator">MODERATOR</span></td><td></td><td>${ isModerator ? `<button id="lock__guessing" ${ gameConfig.guess ? `` : `style="display:none"` }>Lock</button><button id="unlock__guessing" ${ gameConfig.guess ? `style="display:none"` : `` }>Unlock</button>` : `` }</td>` : `</td><td>${ isModerator ? `${user.points} <input type="number" class="points" originValue="${user.points}" value="${user.points}" name="${user.name}">` : `${user.points}` }</td> <td>${ !isModerator && user.name === username ? `<button id='buzzer' disabled=''>Buzzer</button>` : `` }${ isModerator ? `<div class="actions"></div>` : `` }</td><td>${ user.name === username || isModerator ? `<input class="guess" type="text" value="${user.guess}" ${ !gameConfig.guess || isModerator ? `disabled=""` : `` } />` : `` }</td>` }
     </tr>`)
 
             $("#table").html(playersHTML)
@@ -206,8 +195,7 @@
 
             let buzzerer = null;
             socket.on('buzzered', function (user, users) {
-                buzzerSound.play();
-                console.log(buzzerSound)
+                buzzerSound.play().catch(e => {});
                 buzzerer = user.name;
                 localStorage.setItem("buzzerer", user.name)
                 setActiveBuzzer(user.name, users)
@@ -245,12 +233,12 @@
             }
         }
 
-        function unlock(usersNew, username) {
+        function unlock(usersNew, username, gameConfig) {
             $(`#${username}`).css("color", "")
             $(`#${username}`).css("font-weight", "")
             $(`#buzzer`).prop("disabled", false);
             $("#ctr__buttons").remove()
-            updatePlayerList(usersNew)
+            updatePlayerList(usersNew, gameConfig)
         }
     });
 </script>

@@ -20,6 +20,9 @@ var buzzered = {
 }
 
 var guess = false; // if guessing field is locked / unlocked ?
+var gameConfig = {
+    guess: false
+}
 
 http.listen(config.port, function () {
     console.log(`///\nRaved's Gameshow started on ${config.url}:${config.port}\nJoin as moderator: ${config.secure ? "https://" : "http://" }${config.url}:${config.port}?secret=${config.moderatorSecret}\nJoin as player: ${config.secure ? "https://" : "http://" }${config.url}:${config.port}\n///`)
@@ -72,7 +75,7 @@ io.on('connection', function (socket, name) {
             }
         }
 
-        io.emit('playerDisconnect', getUsers(false, true), { for: 'everyone' });
+        io.emit('playerDisconnect', getUsers(false, true), gameConfig, { for: 'everyone' });
 
         if (buzzered.active && buzzered.name !== null) {
             // Make sure it's called AFTER update players list
@@ -122,7 +125,7 @@ io.on('connection', function (socket, name) {
             }
         }
 
-        io.emit('playerJoin', getUsers(false, true));
+        io.emit('playerJoin', getUsers(false, true), gameConfig);
 
         if (buzzered.active && buzzered.name !== null) {
             // Make sure it's called AFTER update players list
@@ -155,7 +158,7 @@ io.on('connection', function (socket, name) {
                 user.points -= config.wrong;
         }
 
-        io.emit('wrongAnswered', getUsers(false ,true), buzzered__name)
+        io.emit('wrongAnswered', getUsers(false ,true), buzzered__name, gameConfig)
     })
 
     socket.on('correct', function (buzzered__name) {
@@ -167,13 +170,13 @@ io.on('connection', function (socket, name) {
         if (user)
             user.points += config.correct;
 
-        io.emit('correctAnswered', getUsers(false, true), buzzered__name)
+        io.emit('correctAnswered', getUsers(false, true), buzzered__name, gameConfig)
     })
 
     socket.on('nopoints', function (username) {
         buzzered.active = false;
         buzzered.name = null;
-        io.emit('nopointsAnswered', getUsers(false, true), username)
+        io.emit('nopointsAnswered', getUsers(false, true), username, gameConfig)
     })
 
     socket.on('updatepoints', function (username, points) {
@@ -186,11 +189,13 @@ io.on('connection', function (socket, name) {
 
     socket.on('lockGuessing', function() {
         guess = false;
+        gameConfig.guess = false;
         io.emit('lockGuessing')
     });
 
     socket.on('unlockGuessing', function() {
         guess = true;
+        gameConfig.guess = true;
         io.emit('unlockGuessing')
     });
 
