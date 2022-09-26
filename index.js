@@ -27,13 +27,13 @@ http.listen(config.port, function () {
 
 app.use('/static', express.static(__dirname + '/public'));
 
-app.get('/', function (req, res) {
-    res.sendFile(__dirname+'/viewer.html')
-});
-
 app.get('/api', function (req, res) {
     res.json(getUsers())
 })
+
+app.get('/', function (req, res) {
+    res.sendFile(__dirname+'/viewer.html')
+});
 
 
 io.on('connection', function (socket, name) {
