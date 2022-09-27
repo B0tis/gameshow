@@ -1,110 +1,40 @@
 html, body {
-    margin: 0;
+    color: #f2f2f2;
     background-color: #030305;
-}
-
-:root {
-    --tableBorderColor: #030305;
-    --tableHeadingBorderColor: #099a65;
-    --tableHeadingBackgroundColor: #0A0A0A;
-    --tableAverageBackgroundColor: #ecffe7;
-    --tableBackgroundColorPrimary: #0B0B0B;
-    --tableBackgroundColorSecondary: #f2f2f2;
-}
-
-.page__wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.message__wrapper,
-.table__wrapper {
-    text-align: center;
-    width: 100%;
-}
-
-.table__wrapper {
-    display: flex;
-    justify-content: center;
-    max-width: 95ch;
-    min-width: 75ch;
-    padding-left: .5rem;
-    padding-right: .5rem;
-    padding-top: .5rem;
-}
-
-table {
-    font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-}
-
-table tr:nth-child(even) {
-    background-color: var(--tableBackgroundColorSecondary);
+    background-image: url(/static/images/plus2.svg);
+    background-size: 6rem;
 }
 
 table th {
-    background-color: var(--tableHeadingBackgroundColor);
-    color: white;
-    white-space: nowrap;
-    padding: 12px 24px;
-    text-align: center;
+    background-color: #0B0B09;
 }
 
-table th:first-child {
-    border-top-left-radius: 8px;
+table td,
+table td:first-child {
+    border-color: #0B0B09;
+    background-color: #0B0B09;
 }
 
-table th:last-child {
-    border-top-right-radius: 8px;
+table tr:nth-child(2n) td {
+    border-color: #1B1B1B;
+    background-color: #1B1B1B;
 }
 
-table td {
-    white-space: nowrap;
-    padding: 12px 24px;
-    background: var(--tableBackgroundColorPrimary);
-    color: #fff;
-    border: 4px solid var(--tableBorderColor);
-    padding: 8px;
-    text-align: center;
-}
-
-.badge {
-    font-size: 12px;
-    text-transform: uppercase;
-    font-weight: bold;
-    padding: .2rem;
-    margin-left: .5rem;
-    border-radius: 3px;
-}
-
-button {
+button,
+input {
+    color: #f2f2f2;
     background-color: #282E46;
     border-color: #282E46;
-    color: #fff;
-    border-radius: 32px;
-    padding: .3rem .8rem;
+    border-radius: 5px;
 }
 
-button[disabled] {
-    opacity: .5;
+button[disabled],
+input[disabled] {
+    background-color: #121214;
+    border-color: #121214;
 }
 
 .badge.badge__moderator {
-    color: #ffffff;
-    background-color: dodgerblue;
-}
-
-.footer__wrapper {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-}
-
-.slidecontainer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    color: #fff;
+    color: #f2f2f2;
+    background-color: #282E46;
 }

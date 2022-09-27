@@ -10,7 +10,30 @@ var config = {
     correct: 4, // amount of points player receives for a correct answer
     wrong: 1,
     wrongAnswerPointsEveryone: true, // enabled = on wrong answer, everyone else receives "wrong" amount of points - otherwise "wrong" amount of points substract,
-    moderatorSecret: makeid(5)
+    moderatorSecret: makeid(5),
+    colors: [
+        "#03C604",
+        "#6868DC",
+        "#FE5858",
+        "#49B84A",
+        "#FCFF00",
+        "#DAA520",
+        "#DB5B5B",
+        "#FF0000",
+        "#0000FF",
+        "#008001",
+        "#B32222",
+        "#FF7F4F",
+        "#FF4500",
+        "#2E8B58",
+        "#DAA521",
+        "#D1691E",
+        "#609EA0",
+        "#1C90FF",
+        "#FF68B4",
+        "#8A2BE2",
+        "#02FF7F"
+    ]
 }
 
 var currentConnections = {};
@@ -118,6 +141,7 @@ io.on('connection', function (socket, name) {
             // New user
             currentConnections[socket.id].data = {
                 name: username,
+                color: config.colors[Math.floor(Math.random()*config.colors.length)],
                 role: role,
                 points: 0,
                 guess: "",

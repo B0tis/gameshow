@@ -22,6 +22,11 @@ input.points {
     justify-content: center;
 }
 
+.message__wrapper {
+    display: flex;
+    justify-content: center;
+}
+
 .message__wrapper,
 .table__wrapper {
     text-align: center;
@@ -35,7 +40,7 @@ input.points {
     min-width: 75ch;
     padding-left: .5rem;
     padding-right: .5rem;
-    padding-top: .5rem;
+    padding-top: 2.5rem;
 }
 
 table {
@@ -90,19 +95,61 @@ table td:first-child {
     background-color: dodgerblue;
 }
 
-.footer__wrapper {
+.slidecontainer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     position: absolute;
     bottom: 0;
     right: 0;
 }
 
-.slidecontainer {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+.copyright {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    opacity: .3;
+}
+
+.slidecontainer,
+.copyright {
+    padding: 15px 30px;
+    font-weight: 600;
+    font-size: 12px;
 }
 
 #buzzer {
     width: 100%;
     height: 26px;
+}
+
+#lock__guessing,
+#unlock__guessing {
+    height: 26px;
+    width: 35%;
+}
+
+#wfm {
+    display: flex;
+    align-items: center;
+}
+
+#wfm svg {
+    -webkit-animation:spin 2s linear infinite;
+    -moz-animation:spin 2s linear infinite;
+    animation:spin 2s linear infinite;
+    margin-left: .5rem;
+}
+
+@-moz-keyframes spin {
+    100% { -moz-transform: rotate(360deg); }
+}
+@-webkit-keyframes spin {
+    100% { -webkit-transform: rotate(360deg); }
+}
+@keyframes spin {
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform:rotate(360deg);
+    }
 }

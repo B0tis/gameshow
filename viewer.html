@@ -2,11 +2,14 @@
 <head>
     <title>Raved's Gameshow</title>
     <link rel="stylesheet" href="/static/css/index.css">
+    <link rel="stylesheet" href="/static/css/twitch.css">
 </head>
 <body>
 <div class="page__wrapper">
     <div class="message__wrapper">
-<p id="wfm">Waiting for Moderator..</p>
+<p id="wfm">Waiting for Moderator <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-6 h-6" style="width: 16px;">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
+</svg></p>
     </div>
 
 <div class="table__wrapper">
@@ -19,6 +22,9 @@
         <div class="slidecontainer">
             <span>Volume:</span>
             <input type="range" min="1" max="100" value="30" class="slider" id="slider">
+        </div>
+        <div class="copyright">
+            <span>© 2022 Raved#8329</span>
         </div>
     </div>
 </div>
@@ -144,7 +150,7 @@
         <th>Guess</th>
     </tr>`
             playersHTML += currentConnections.map(user => `<tr id="${user.name}">
-        <td class="username">${user.name} ${user.role == "moderator" ? `</td><td><span class="badge badge__moderator">MODERATOR</span></td><td></td><td>${ isModerator ? `<button id="lock__guessing" ${ gameConfig.guess ? `` : `style="display:none"` }>Lock</button><button id="unlock__guessing" ${ gameConfig.guess ? `style="display:none"` : `` }>Unlock</button>` : `` }</td>` : `</td><td>${ isModerator ? `${user.points} <input type="number" class="points" originValue="${user.points}" value="${user.points}" name="${user.name}">` : `${user.points}` }</td> <td>${ !isModerator && user.name === username ? `<button id='buzzer' disabled=''>Buzzer</button>` : `` }${ isModerator ? `<div class="actions"></div>` : `` }</td><td>${ user.name === username || isModerator ? `<input class="guess" type="text" value="${user.guess}" ${ !gameConfig.guess || isModerator ? `disabled=""` : `` } />` : `` }</td>` }
+        <td class="username" style="font-weight:600;color:${user.color}">${user.name} ${user.role == "moderator" ? `</td><td><img style="width:23px" title="Moderator" src="/static/images/2.png" /></td><td></td><td>${ isModerator ? `<button id="lock__guessing" ${ gameConfig.guess ? `` : `style="display:none"` }>Lock</button><button id="unlock__guessing" ${ gameConfig.guess ? `style="display:none"` : `` }>Unlock</button>` : `` }</td>` : `</td><td>${ isModerator ? `${user.points} <input type="number" class="points" originValue="${user.points}" value="${user.points}" name="${user.name}">` : `${user.points}` }</td> <td>${ !isModerator && user.name === username ? `<button id='buzzer' disabled=''>Buzzer</button>` : `` }${ isModerator ? `<div class="actions"></div>` : `` }</td><td>${ user.name === username || isModerator ? `<input class="guess" type="text" value="${user.guess}" ${ !gameConfig.guess || isModerator ? `disabled=""` : `` } />` : `` }</td>` }
     </tr>`)
 
             $("#table").html(playersHTML)
@@ -236,8 +242,7 @@
         }
 
         function setActiveBuzzer(buzzered__name, users) {
-            $(`#${buzzered__name} > td:first-child`).css("color", "#e03030")
-            $(`#${buzzered__name} > td:first-child`).css("font-weight", "600")
+            $(`#${buzzered__name}`).css("border", "2px solid #e03030")
             $(`#buzzer`).prop("disabled", true);
 
             const self = users.filter(user => user.name === username)[0];
@@ -249,8 +254,7 @@
         }
 
         function unlock(usersNew, username, gameConfig) {
-            $(`#${username}`).css("color", "")
-            $(`#${username}`).css("font-weight", "")
+            $(`#${username}`).css("border", "")
             $(`#buzzer`).prop("disabled", false);
             $("#ctr__buttons").remove()
             updatePlayerList(usersNew, gameConfig)

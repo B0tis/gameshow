@@ -1,0 +1,52 @@
+html, body {
+    color: #dedee3;
+    background-color: #0E0E10;
+    background-image: url(/static/images/plus2.svg);
+    background-size: 6rem;
+}
+
+table th {
+    background-color: #18181B;
+}
+
+table td,
+table td:first-child {
+    border-color: #18181B;
+    background-color: #18181B;
+}
+
+table tr:nth-child(2n) td {
+    border-color: #1B1B1B;
+    background-color: #1B1B1B;
+}
+
+button {
+    color: #FFFFFF;
+    background-color: #9147FF;
+    border: 1px solid #9147FF;
+    border-radius: .4rem;
+    font-weight: 600;
+}
+
+button[disabled] {
+    opacity: .5;
+    font-style: italic;
+}
+
+input {
+    color: #dedee3;
+    background-color: #464649;
+    border: 1px solid #464649;
+}
+
+input[disabled] {
+    opacity: .5;
+}
+
+#wfm {
+    font-weight: 600;
+    padding: 5px 18px;
+    background-color: #9147FF;
+    border-radius: 5px;
+    margin-top: 2rem;
+}
