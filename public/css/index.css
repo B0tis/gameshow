@@ -118,6 +118,10 @@ table td:first-child {
     font-size: 12px;
 }
 
+.tdpoints {
+    font-weight: 600;
+}
+
 #buzzer {
     width: 100%;
     height: 26px;
