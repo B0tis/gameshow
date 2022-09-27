@@ -26,6 +26,13 @@ button {
     border: 1px solid #9147FF;
     border-radius: .4rem;
     font-weight: 600;
+    height: 26px;
+    margin: 0 2px;
+}
+
+button:not([disabled]):hover {
+    border-color: #772CE8;
+    background-color: #772CE8;
 }
 
 button[disabled] {
