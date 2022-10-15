@@ -169,7 +169,7 @@ input {
 #html-spinner{
     width:.8rem;
     height:.8rem;
-    border:0.156rem solid #603B97;
+    border:0.156rem solid rgba(255,255,255,.2);
     border-top:0.156rem solid #ffffff;
     border-radius:50%;
     margin-left: .5rem;
