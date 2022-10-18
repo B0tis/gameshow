@@ -158,7 +158,7 @@ io.on('connection', function (socket, name) {
     })
 
     socket.on('buzzered', function (username) {
-        if (buzzered.active) return;
+        if (buzzered.active || getUsers().filter(entry => entry.role == "moderator").length <= 0) return;
         buzzered.active = true;
         buzzered.name = username;
 
