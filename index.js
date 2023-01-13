@@ -174,7 +174,7 @@ io.on('connection', function (socket, name) {
             users = users.filter(entry => entry.name !== buzzered__name && entry.role !== "moderator")
 
             for (const user of users)
-                user.points += config.wrong;
+                user.points = Number(user.points) + config.wrong;
         } else {
             const user = getUserByUsername(buzzered__name)
             if (user === undefined) return;
@@ -192,7 +192,7 @@ io.on('connection', function (socket, name) {
         const user = getUserByUsername(buzzered__name)
         if (user === undefined) return;
         if (user)
-            user.points += config.correct;
+            user.points = Number(user.points) + config.correct;
 
         io.emit('correctAnswered', getUsers(false, true), buzzered__name, gameConfig)
     })
